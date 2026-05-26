@@ -633,14 +633,6 @@ Renders the payment method selector and card form.
 | `className` | `string` | CSS class for the container div |
 | `id` | `string` | ID for the container div |
 
-### `<CardElement>`
-
-Card form only (no payment method selector).
-
-```tsx
-<CardElement onChange={(e) => console.log(e.complete, e.value.brand)} />
-```
-
 ### `<CheckoutButton>`
 
 Opens the drop-in checkout modal on click.
@@ -678,44 +670,6 @@ A button that opens the full checkout in a modal overlay. No form needed.
     Subscribe Now
   </CheckoutButton>
 </XPayProvider>
-```
-
-### Card Element with Custom Payment Method Selector
-
-Build your own selector. Mount card form only when "Card" is selected.
-
-```tsx
-function CustomCheckout() {
-  const checkoutState = useCheckout();
-  const [method, setMethod] = useState("card");
-
-  if (checkoutState.type !== "success") return <div>Loading...</div>;
-
-  const { checkout } = checkoutState;
-
-  return (
-    <div>
-      <div className="flex gap-2">
-        {checkout.paymentMethods.map((pm) => (
-          <button
-            key={pm.type}
-            onClick={() => setMethod(pm.type)}
-            className={method === pm.type ? "border-blue-500 border-2" : "border-gray-200 border"}
-          >
-            {pm.displayName}
-          </button>
-        ))}
-      </div>
-
-      {method === "card" && <CardElement />}
-      {method !== "card" && <p>You will complete payment in a secure form.</p>}
-
-      <button onClick={() => checkout.confirm({ paymentMethod: method })}>
-        {method === "card" ? "Pay" : `Continue with ${method}`}
-      </button>
-    </div>
-  );
-}
 ```
 
 ### Dark Mode Toggle
