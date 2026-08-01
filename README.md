@@ -708,20 +708,15 @@ await checkout.confirm({
   redirect: "always",
 });
 // ^ If successful, the page navigates away. Code below only runs on error.
-
-// Override the redirect URL from the client:
-await checkout.confirm({
-  customerDetails: { email, name },
-  redirect: "always",
-  returnUrl: "https://mysite.com/custom-success",
-});
 ```
 
 | `redirect` | Behavior |
 |---|---|
 | Not set (default) | `"if_required"` — returns result to your code |
-| `"always"` | Redirects to `returnUrl` (client) → server's `afterCompletion.redirect.url` |
+| `"always"` | Redirects to the session's `afterCompletion.redirect.url` |
 | `"if_required"` | Returns result to your code — no redirect |
+
+Your server sets that URL when it creates the session. XPay navigates there unchanged, appending nothing.
 
 ---
 
