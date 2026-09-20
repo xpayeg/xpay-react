@@ -14,44 +14,46 @@ This README is a quick-start. The docs site is the authoritative reference.
 npm install @xpayeg/sdk @xpayeg/react
 ```
 
+Both ESM (`import`) and CommonJS (`require`) are supported, with matching TypeScript declarations. Your tooling selects the appropriate entrypoint automatically.
+
 ## Step 1: Create a Checkout Session [Server-side]
 
 On your server, create a Checkout Session and return the `clientSecret` to your frontend. The checkout session defines what you're charging for — line items, currency, amounts, and what happens after payment.
 
 ```javascript
 // Your server (Node.js example with Express)
-app.post('/api/create-checkout', async (req, res) => {
-  const response = await fetch('https://api.xpay.app/checkout/sessions', {
-    method: 'POST',
+app.post("/api/create-checkout", async (req, res) => {
+  const response = await fetch("https://api.xpay.app/checkout/sessions", {
+    method: "POST",
     headers: {
-      'Authorization': `Bearer ${process.env.XPAY_SECRET_KEY}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.XPAY_SECRET_KEY}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      uiMode: 'custom', // 'custom' for Elements SDK, 'embedded' for drop-in, 'hosted' for redirect
+      uiMode: "custom", // 'custom' for Elements SDK, 'embedded' for drop-in, 'hosted' for redirect
       lineItems: [
         {
           priceData: {
-            unitAmount: 50000,   // Amount in smallest unit (500.00 EGP = 50000 piasters)
-            currency: 'EGP',
+            unitAmount: 50000, // Amount in smallest unit (500.00 EGP = 50000 piasters)
+            currency: "EGP",
             productData: {
-              name: 'Premium Plan',
-              description: 'Monthly subscription',
+              name: "Premium Plan",
+              description: "Monthly subscription",
             },
           },
           quantity: 1,
         },
       ],
       afterCompletion: {
-        type: 'redirect',
+        type: "redirect",
         redirect: {
           // {CHECKOUT_SESSION_ID} is automatically replaced with the session ID
-          url: 'https://yoursite.com/success?session_id={CHECKOUT_SESSION_ID}',
+          url: "https://yoursite.com/success?session_id={CHECKOUT_SESSION_ID}",
         },
       },
       // Optional
       customerDetails: { email: req.body.email },
-      brandingSettings: { colorMode: 'system' },
+      brandingSettings: { colorMode: "system" },
     }),
   });
 
@@ -202,9 +204,7 @@ function OrderSummary() {
 
       {/* Live/test mode indicator */}
       {!checkout.livemode && (
-        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-          Test Mode
-        </span>
+        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Test Mode</span>
       )}
     </div>
   );
@@ -213,22 +213,22 @@ function OrderSummary() {
 
 **Session fields on `checkout`:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `checkout.id` | `string` | Session ID |
-| `checkout.amountSubtotal` | `number` | Subtotal before discounts/fees (smallest unit) |
-| `checkout.amountTotal` | `number` | Total amount in smallest currency unit (piasters) |
-| `checkout.currency` | `string` | ISO 4217 currency code |
-| `checkout.merchantName` | `string` | Merchant display name |
-| `checkout.livemode` | `boolean` | Whether this is a live mode session |
-| `checkout.expiresAt` | `string` | Session expiration timestamp |
-| `checkout.status` | `SessionStatus` | Disjoint union: `{type: "open"}` \| `{type: "expired"}` \| `{type: "complete", paymentStatus}` |
-| `checkout.canConfirm` | `boolean` | Whether the session is ready for confirmation |
-| `checkout.paymentMethods` | `PaymentMethodInfo[]` | Available payment methods |
-| `checkout.lineItems` | `LineItem[]` | Line items with product name, quantity, amount |
-| `checkout.totalDetails` | `TotalDetails` | Amounts breakdown (discount, shipping, tax, fees) |
-| `checkout.fees` | `Fees` | Fee breakdown (when feesPassThrough enabled) |
-| `checkout.discounts` | `Discount[]` | Applied discounts |
+| Field                     | Type                  | Description                                                                                    |
+| ------------------------- | --------------------- | ---------------------------------------------------------------------------------------------- |
+| `checkout.id`             | `string`              | Session ID                                                                                     |
+| `checkout.amountSubtotal` | `number`              | Subtotal before discounts/fees (smallest unit)                                                 |
+| `checkout.amountTotal`    | `number`              | Total amount in smallest currency unit (piasters)                                              |
+| `checkout.currency`       | `string`              | ISO 4217 currency code                                                                         |
+| `checkout.merchantName`   | `string`              | Merchant display name                                                                          |
+| `checkout.livemode`       | `boolean`             | Whether this is a live mode session                                                            |
+| `checkout.expiresAt`      | `string`              | Session expiration timestamp                                                                   |
+| `checkout.status`         | `SessionStatus`       | Disjoint union: `{type: "open"}` \| `{type: "expired"}` \| `{type: "complete", paymentStatus}` |
+| `checkout.canConfirm`     | `boolean`             | Whether the session is ready for confirmation                                                  |
+| `checkout.paymentMethods` | `PaymentMethodInfo[]` | Available payment methods                                                                      |
+| `checkout.lineItems`      | `LineItem[]`          | Line items with product name, quantity, amount                                                 |
+| `checkout.totalDetails`   | `TotalDetails`        | Amounts breakdown (discount, shipping, tax, fees)                                              |
+| `checkout.fees`           | `Fees`                | Fee breakdown (when feesPassThrough enabled)                                                   |
+| `checkout.discounts`      | `Discount[]`          | Applied discounts                                                                              |
 
 ### Updating the Session (Promo Codes, Quantities)
 
@@ -289,13 +289,13 @@ function CheckoutWithPromo() {
       ))}
 
       {/* Total updates reactively */}
-      <p>Total: {checkout.currency} {(checkout.amountTotal / 100).toFixed(2)}</p>
+      <p>
+        Total: {checkout.currency} {(checkout.amountTotal / 100).toFixed(2)}
+      </p>
 
       {/* Fee breakdown (when feesPassThrough enabled) */}
       {checkout.totalDetails?.amountPlatformFee && (
-        <p>
-          Processing Fee: {(checkout.totalDetails.amountPlatformFee / 100).toFixed(2)}
-        </p>
+        <p>Processing Fee: {(checkout.totalDetails.amountPlatformFee / 100).toFixed(2)}</p>
       )}
 
       <PaymentElement />
@@ -346,24 +346,23 @@ The error object shape:
 
 All action methods live on the `checkout` object returned from the `success` state.
 
-| Method | Signature | Description |
-|--------|-----------|-------------|
-| `confirm` | `(options?) => Promise<ActionResult>` | Confirm payment. Handles 3DS and redirects. |
-| `applyPromotionCode` | `(code: string) => Promise<ActionResult>` | Apply a promotion code |
-| `removePromotionCode` | `() => Promise<ActionResult>` | Remove the applied promotion code |
-| `updateLineItemQuantity` | `({lineItem, quantity}) => Promise<ActionResult>` | Update a line item's quantity |
-| `submit` | `() => Promise<{error?, selectedPaymentMethod?}>` | Validate all fields before confirming |
-| `fetchUpdates` | `() => Promise<ActionResult>` | Re-fetch the session from the server |
-| `changeAppearance` | `(appearance: Appearance) => void` | Update appearance at runtime |
-| `on` | `("change", handler) => void` | Listen for session changes (rarely needed in React — state updates automatically) |
-| `getElements` | `() => Elements` | Access the underlying Elements instance |
+| Method                   | Signature                                         | Description                                                                       |
+| ------------------------ | ------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `confirm`                | `(options?) => Promise<ActionResult>`             | Confirm payment. Handles 3DS and redirects.                                       |
+| `applyPromotionCode`     | `(code: string) => Promise<ActionResult>`         | Apply a promotion code                                                            |
+| `removePromotionCode`    | `() => Promise<ActionResult>`                     | Remove the applied promotion code                                                 |
+| `updateLineItemQuantity` | `({lineItem, quantity}) => Promise<ActionResult>` | Update a line item's quantity                                                     |
+| `submit`                 | `() => Promise<{error?, selectedPaymentMethod?}>` | Validate all fields before confirming                                             |
+| `fetchUpdates`           | `() => Promise<ActionResult>`                     | Re-fetch the session from the server                                              |
+| `changeAppearance`       | `(appearance: Appearance) => void`                | Update appearance at runtime                                                      |
+| `on`                     | `("change", handler) => void`                     | Listen for session changes (rarely needed in React — state updates automatically) |
+| `getElements`            | `() => Elements`                                  | Access the underlying Elements instance                                           |
 
 **`ActionResult` type:**
 
 ```typescript
 type ActionResult =
-  | { type: "success"; session: CheckoutSession }
-  | { type: "error"; error: XPayError };
+  { type: "success"; session: CheckoutSession } | { type: "error"; error: XPayError };
 ```
 
 **`XPayError` type:**
@@ -422,11 +421,10 @@ After payment, the customer is redirected to your `afterCompletion.redirect.url`
 
 ```javascript
 // Your server — retrieves session using your API key (not from the client SDK)
-app.get('/api/order-status', async (req, res) => {
-  const response = await fetch(
-    `https://api.xpay.app/checkout/sessions/${req.query.session_id}`,
-    { headers: { 'Authorization': `Bearer ${process.env.XPAY_SECRET_KEY}` } },
-  );
+app.get("/api/order-status", async (req, res) => {
+  const response = await fetch(`https://api.xpay.app/checkout/sessions/${req.query.session_id}`, {
+    headers: { Authorization: `Bearer ${process.env.XPAY_SECRET_KEY}` },
+  });
   const session = await response.json();
   res.json(session);
 });
@@ -437,7 +435,7 @@ app.get('/api/order-status', async (req, res) => {
 ```tsx
 function SuccessPage() {
   const [session, setSession] = useState(null);
-  const sessionId = new URLSearchParams(window.location.search).get('session_id');
+  const sessionId = new URLSearchParams(window.location.search).get("session_id");
 
   useEffect(() => {
     fetch(`/api/order-status?session_id=${sessionId}`)
@@ -451,10 +449,14 @@ function SuccessPage() {
     <div>
       <h1>Payment {session.paymentStatus === "paid" ? "Confirmed" : "Processing"}</h1>
 
-      <p>Order Total: {session.currency} {(session.amountTotal / 100).toFixed(2)}</p>
+      <p>
+        Order Total: {session.currency} {(session.amountTotal / 100).toFixed(2)}
+      </p>
 
       {session.lineItems?.map((item) => (
-        <p key={item.id}>{item.price?.product?.name} x {item.quantity}</p>
+        <p key={item.id}>
+          {item.price?.product?.name} x {item.quantity}
+        </p>
       ))}
 
       {/* Fee breakdown */}
@@ -492,21 +494,21 @@ function SuccessPage() {
 
 **Session fields for display:**
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `session.status` | `'open' \| 'complete' \| 'expired'` | Session status |
-| `session.paymentStatus` | `'unpaid' \| 'paid'` | Payment status |
-| `session.amountSubtotal` | `number` | Subtotal before discounts/fees (smallest unit) |
-| `session.amountTotal` | `number` | Total amount charged (smallest unit) |
-| `session.currency` | `string` | Currency code (e.g., `'EGP'`) |
-| `session.lineItems` | `Array` | Line items with product name, quantity, amount |
-| `session.totalDetails.amountDiscount` | `number` | Discount amount |
-| `session.totalDetails.amountShipping` | `number` | Shipping amount |
-| `session.totalDetails.amountTax` | `number` | Tax amount |
-| `session.totalDetails.amountPlatformFee` | `number` | Platform fee (if feesPassThrough enabled) |
-| `session.totalDetails.amountCollectedVat` | `number` | Collected VAT |
-| `session.customer` | `object` | Customer name, email, phone |
-| `session.merchantName` | `string` | Merchant display name |
+| Field                                     | Type                                | Description                                    |
+| ----------------------------------------- | ----------------------------------- | ---------------------------------------------- |
+| `session.status`                          | `'open' \| 'complete' \| 'expired'` | Session status                                 |
+| `session.paymentStatus`                   | `'unpaid' \| 'paid'`                | Payment status                                 |
+| `session.amountSubtotal`                  | `number`                            | Subtotal before discounts/fees (smallest unit) |
+| `session.amountTotal`                     | `number`                            | Total amount charged (smallest unit)           |
+| `session.currency`                        | `string`                            | Currency code (e.g., `'EGP'`)                  |
+| `session.lineItems`                       | `Array`                             | Line items with product name, quantity, amount |
+| `session.totalDetails.amountDiscount`     | `number`                            | Discount amount                                |
+| `session.totalDetails.amountShipping`     | `number`                            | Shipping amount                                |
+| `session.totalDetails.amountTax`          | `number`                            | Tax amount                                     |
+| `session.totalDetails.amountPlatformFee`  | `number`                            | Platform fee (if feesPassThrough enabled)      |
+| `session.totalDetails.amountCollectedVat` | `number`                            | Collected VAT                                  |
+| `session.customer`                        | `object`                            | Customer name, email, phone                    |
+| `session.merchantName`                    | `string`                            | Merchant display name                          |
 
 ## Step 5: Handle Webhooks [Server-side]
 
@@ -514,16 +516,16 @@ XPay sends webhook events when payment state changes. Listen for these on your s
 
 ```javascript
 // Your server
-app.post('/webhooks/xpay', (req, res) => {
+app.post("/webhooks/xpay", (req, res) => {
   const event = req.body;
 
   switch (event.type) {
-    case 'checkout.session.completed':
+    case "checkout.session.completed":
       // Payment succeeded — fulfill the order
       // Send confirmation email, update database, start shipping
       fulfillOrder(event.data);
       break;
-    case 'checkout.session.expired':
+    case "checkout.session.expired":
       // Session expired without payment
       break;
   }
@@ -543,21 +545,18 @@ The webhook is the **source of truth** for order fulfillment. The client-side `c
 Wraps your checkout UI. Provides XPay context to all child components.
 
 ```tsx
-<XPayProvider
-  xpay={xpayPromise}
-  options={{ clientSecret, appearance, locale }}
->
+<XPayProvider xpay={xpayPromise} options={{ clientSecret, appearance, locale }}>
   {children}
 </XPayProvider>
 ```
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `xpay` | `XPayInstance \| Promise<XPayInstance> \| null` | XPay instance or promise from `loadXPay()`. Call at module level. |
-| `options` | `{ clientSecret, appearance?, locale? }` | Must include the checkout session's `clientSecret`. |
-| `options.clientSecret` | `string \| Promise<string>` | The session's client secret. Accepts a Promise for deferred loading. |
-| `options.appearance` | `Appearance` | Override the session's branding settings at runtime. |
-| `options.locale` | `"en" \| "ar"` | Locale for the payment form. |
+| Prop                   | Type                                            | Description                                                          |
+| ---------------------- | ----------------------------------------------- | -------------------------------------------------------------------- |
+| `xpay`                 | `XPayInstance \| Promise<XPayInstance> \| null` | XPay instance or promise from `loadXPay()`. Call at module level.    |
+| `options`              | `{ clientSecret, appearance?, locale? }`        | Must include the checkout session's `clientSecret`.                  |
+| `options.clientSecret` | `string \| Promise<string>`                     | The session's client secret. Accepts a Promise for deferred loading. |
+| `options.appearance`   | `Appearance`                                    | Override the session's branding settings at runtime.                 |
+| `options.locale`       | `"en" \| "ar"`                                  | Locale for the payment form.                                         |
 
 ### `useCheckout()`
 
@@ -580,37 +579,37 @@ After narrowing to `type: "success"`, the `checkout` object contains all session
 
 **Session fields** (on `checkout`):
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Session ID |
-| `amountSubtotal` | `number` | Subtotal before discounts/fees |
-| `amountTotal` | `number` | Total amount (smallest unit) |
-| `currency` | `string` | Currency code |
-| `merchantName` | `string` | Merchant display name |
-| `livemode` | `boolean` | Whether live mode |
-| `expiresAt` | `string` | Session expiration |
-| `status` | `SessionStatus` | `{type: "open"}` \| `{type: "expired"}` \| `{type: "complete", paymentStatus}` |
-| `canConfirm` | `boolean` | Whether the session is ready for confirmation |
-| `paymentMethods` | `PaymentMethodInfo[]` | Available payment methods |
-| `lineItems` | `LineItem[]` | Line items |
-| `totalDetails` | `TotalDetails` | Amounts breakdown |
-| `fees` | `Fees` | Fee breakdown |
-| `discounts` | `Discount[]` | Applied discounts |
+| Field            | Type                  | Description                                                                    |
+| ---------------- | --------------------- | ------------------------------------------------------------------------------ |
+| `id`             | `string`              | Session ID                                                                     |
+| `amountSubtotal` | `number`              | Subtotal before discounts/fees                                                 |
+| `amountTotal`    | `number`              | Total amount (smallest unit)                                                   |
+| `currency`       | `string`              | Currency code                                                                  |
+| `merchantName`   | `string`              | Merchant display name                                                          |
+| `livemode`       | `boolean`             | Whether live mode                                                              |
+| `expiresAt`      | `string`              | Session expiration                                                             |
+| `status`         | `SessionStatus`       | `{type: "open"}` \| `{type: "expired"}` \| `{type: "complete", paymentStatus}` |
+| `canConfirm`     | `boolean`             | Whether the session is ready for confirmation                                  |
+| `paymentMethods` | `PaymentMethodInfo[]` | Available payment methods                                                      |
+| `lineItems`      | `LineItem[]`          | Line items                                                                     |
+| `totalDetails`   | `TotalDetails`        | Amounts breakdown                                                              |
+| `fees`           | `Fees`                | Fee breakdown                                                                  |
+| `discounts`      | `Discount[]`          | Applied discounts                                                              |
 
 **Action methods** (on `checkout`):
 
-| Method | Signature | Description |
-|--------|-----------|-------------|
-| `confirm` | `(options?) => Promise<ActionResult>` | Confirm payment |
-| `applyPromotionCode` | `(code) => Promise<ActionResult>` | Apply a promo code |
-| `removePromotionCode` | `() => Promise<ActionResult>` | Remove promo code |
-| `updateLineItemQuantity` | `({lineItem, quantity}) => Promise<ActionResult>` | Update line item quantity |
-| `submit` | `() => Promise<{error?, selectedPaymentMethod?}>` | Validate fields |
-| `fetchUpdates` | `() => Promise<ActionResult>` | Re-fetch session |
-| `changeAppearance` | `(appearance) => void` | Update appearance |
-| `on` | `("change", handler) => void` | Listen for session changes |
-| `on` | `("error", handler) => void` | Listen for unsolicited errors (session expired during internal updates, BIN detection failure) |
-| `getElements` | `() => Elements` | Access underlying Elements |
+| Method                   | Signature                                         | Description                                                                                    |
+| ------------------------ | ------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `confirm`                | `(options?) => Promise<ActionResult>`             | Confirm payment                                                                                |
+| `applyPromotionCode`     | `(code) => Promise<ActionResult>`                 | Apply a promo code                                                                             |
+| `removePromotionCode`    | `() => Promise<ActionResult>`                     | Remove promo code                                                                              |
+| `updateLineItemQuantity` | `({lineItem, quantity}) => Promise<ActionResult>` | Update line item quantity                                                                      |
+| `submit`                 | `() => Promise<{error?, selectedPaymentMethod?}>` | Validate fields                                                                                |
+| `fetchUpdates`           | `() => Promise<ActionResult>`                     | Re-fetch session                                                                               |
+| `changeAppearance`       | `(appearance) => void`                            | Update appearance                                                                              |
+| `on`                     | `("change", handler) => void`                     | Listen for session changes                                                                     |
+| `on`                     | `("error", handler) => void`                      | Listen for unsolicited errors (session expired during internal updates, BIN detection failure) |
+| `getElements`            | `() => Elements`                                  | Access underlying Elements                                                                     |
 
 ### `<PaymentElement>`
 
@@ -618,20 +617,20 @@ Renders the payment method selector and card form.
 
 ```tsx
 <PaymentElement
-  options={{ layout: 'accordion' }}
+  options={{ layout: "accordion" }}
   onChange={(e) => console.log(e.complete, e.value.type)}
 />
 ```
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `options` | `{ layout?, defaultPaymentMethod?, paymentMethodOrder? }` | Configuration |
-| `onChange` | `(event: PaymentElementChangeEvent) => void` | Form state changed |
-| `onReady` | `() => void` | Element initialized (async, fires from `XPAY_SDK_INITIALIZED`) |
-| `onLoaderStart` | `() => void` | Loader animation started (fires synchronously when iframe is created) |
-| `onLoadError` | `(event) => void` | Element failed to load |
-| `className` | `string` | CSS class for the container div |
-| `id` | `string` | ID for the container div |
+| Prop            | Type                                                      | Description                                                           |
+| --------------- | --------------------------------------------------------- | --------------------------------------------------------------------- |
+| `options`       | `{ layout?, defaultPaymentMethod?, paymentMethodOrder? }` | Configuration                                                         |
+| `onChange`      | `(event: PaymentElementChangeEvent) => void`              | Form state changed                                                    |
+| `onReady`       | `() => void`                                              | Element initialized (async, fires from `XPAY_SDK_INITIALIZED`)        |
+| `onLoaderStart` | `() => void`                                              | Loader animation started (fires synchronously when iframe is created) |
+| `onLoadError`   | `(event) => void`                                         | Element failed to load                                                |
+| `className`     | `string`                                                  | CSS class for the container div                                       |
+| `id`            | `string`                                                  | ID for the container div                                              |
 
 ### `<CheckoutButton>`
 
@@ -640,7 +639,7 @@ Opens the drop-in checkout modal on click.
 ```tsx
 <CheckoutButton
   clientSecret="cs_test_abc_secret_xyz"
-  checkoutOptions={{ onComplete: (r) => router.push('/success') }}
+  checkoutOptions={{ onComplete: (r) => router.push("/success") }}
 >
   Pay Now
 </CheckoutButton>
@@ -663,7 +662,7 @@ A button that opens the full checkout in a modal overlay. No form needed.
   <CheckoutButton
     clientSecret={clientSecret}
     checkoutOptions={{
-      onComplete: (result) => window.location.href = `/orders/${orderId}`,
+      onComplete: (result) => (window.location.href = `/orders/${orderId}`),
       onClose: () => console.log("Closed"),
     }}
   >
@@ -710,11 +709,11 @@ await checkout.confirm({
 // ^ If successful, the page navigates away. Code below only runs on error.
 ```
 
-| `redirect` | Behavior |
-|---|---|
-| Not set (default) | `"if_required"` — returns result to your code |
-| `"always"` | Redirects to the session's `afterCompletion.redirect.url` |
-| `"if_required"` | Returns result to your code — no redirect |
+| `redirect`        | Behavior                                                  |
+| ----------------- | --------------------------------------------------------- |
+| Not set (default) | `"if_required"` — returns result to your code             |
+| `"always"`        | Redirects to the session's `afterCompletion.redirect.url` |
+| `"if_required"`   | Returns result to your code — no redirect                 |
 
 Your server sets that URL when it creates the session. XPay navigates there unchanged, appending nothing.
 
@@ -750,12 +749,7 @@ Override the session's `brandingSettings` at runtime. Uses the same shape.
 All components and hooks are fully typed. `@xpayeg/react` re-exports key SDK types for convenience:
 
 ```tsx
-import type {
-  Checkout,
-  CheckoutSession,
-  CheckoutActions,
-  UseCheckoutResult,
-} from "@xpayeg/react";
+import type { Checkout, CheckoutSession, CheckoutActions, UseCheckoutResult } from "@xpayeg/react";
 
 // Or import additional types from @xpayeg/sdk directly:
 import type {
@@ -771,3 +765,11 @@ import type {
   CheckoutDiscount,
 } from "@xpayeg/sdk";
 ```
+
+## Development checks
+
+From the monorepo, run `pnpm --filter @xpayeg/react test` for the React DOM
+contracts. These use jsdom and a synthetic Elements boundary to check option
+updates, StrictMode teardown, and current callbacks without subscription churn.
+They do not create checkout sessions or submit payments. Run
+`pnpm --filter @xpayeg/react typecheck` for source, test, and public consumer types.
